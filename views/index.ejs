@@ -1,0 +1,114 @@
+<%- include('partials/header.ejs') %>
+<div class="container">
+    <header>
+        <h1>AttentionAI</h1>
+        <p>Your ADHD Accountability Coach</p>
+    </header>
+
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+
+            <!-- Messages will be dynamically added here -->
+            <% chatHistory.forEach(chat => { %>
+                <div class="message <%= chat.sentBy %>-message">
+                    <%= chat.message %>
+                </div>
+            <% }) %>
+        </div>
+        <div class="chat-input">
+            <form action="/send" method="post">
+                <input type="text" id="user-input" name="userInput" placeholder="Type your message...">
+                <button id="send-btn" type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="goals-container">
+        <h2>Today's Goals</h2>
+        <ul id="goals-list">
+            <!-- Goals will be dynamically added here -->
+        </ul>
+        <div id="add-goal">
+            <input type="text" id="goal-input" placeholder="Add a new goal...">
+            <button id="add-goal-btn">Add Goal</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+</script>
+
+<!--
+    const chatMessages = document.getElementById('chat-messages');
+    
+    addMessage(userInput, true);
+    addMessage(aiOutput);
+
+    function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+        messageDiv.textContent = content;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+ -->
+
+<!-- <script>
+    
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const goalsList = document.getElementById('goals-list');
+    const goalInput = document.getElementById('goal-input');
+    const addGoalBtn = document.getElementById('add-goal-btn');
+
+    function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+        messageDiv.textContent = content;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function handleUserInput() {
+        const message = userInput.value.trim();
+        if (message) {
+            addMessage(message, true);
+            userInput.value = '';
+            // Simulate AI response (replace with actual AI integration)
+            setTimeout(() => {
+                addMessage("I've received your message. How can I help you stay accountable today?");
+            }, 1000);
+        }
+    }
+
+    function addGoal() {
+        const goal = goalInput.value.trim();
+        if (goal) {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                ${goal}
+                <button onclick="this.parentElement.remove()">Remove</button>
+            `;
+            goalsList.appendChild(li);
+            goalInput.value = '';
+        }
+    }
+
+    sendBtn.addEventListener('click', handleUserInput);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleUserInput();
+    });
+
+    addGoalBtn.addEventListener('click', addGoal);
+    goalInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addGoal();
+    });
+
+    // Initial AI message
+    addMessage("Hello! I'm your AttentionAI coach. How can I help you stay focused and accomplish your goals today?");
+</script>
+ -->
