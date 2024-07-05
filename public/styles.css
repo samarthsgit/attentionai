@@ -6,10 +6,73 @@
     box-sizing: border-box;
 }
 
+:root {
+    --primary-color: #9370db;
+    --bg-color: #f4f1fb;
+    --nav-bar: #9370db;
+    --msg-font: #0f0b16;
+    --btn-color: #9370db;
+    --btn-font: #fff;
+    --btn-hover-color: #674e99;
+    --heading-color: #fff;
+    --chat-container-bg: #fff;
+    --user-msg-font: #fff;
+    --ai-msg-font: #0f0b16;
+    --user-msg-bg: #8465c5;
+    --ai-msg-bg: #bea9e9;
+    --chat-input-bg: #e9e2f8;
+}
+
+/* Styling Header */
+nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--nav-bar);
+    padding: 10px 15px;
+}
+
+.brand-div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-div {
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid white;
+}
+
+.logo-div img {
+    height: 50px;
+    border-radius: 50%;
+}
+
+.profile-pic-div {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid white;
+    
+}
+
+.profile-pic-div img {
+    height: 65px;
+    /* border-radius: 50%; */
+}
+
+
+
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f0f3f5;
-    color: #333;
+    background-color: var(--bg-color);
+    /* #f0f3f5 */
+    color: var(--msg-font);
+    /* #333 */
     line-height: 1.6;
 }
 
@@ -24,14 +87,13 @@ header {
     margin-bottom: 30px;
 }
 
-h1 {
-    color: #3498db;
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+.brand-div #logo-title {
+    color: var(--heading-color);
+    font-size: 16px;
 }
 
 .chat-container {
-    background-color: #fff;
+    background-color: var(--chat-container-bg);
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -51,21 +113,21 @@ h1 {
 }
 
 .user-message {
-    background-color: #3498db;
-    color: #fff;
+    background-color: var(--user-msg-bg);
+    color: var(--user-msg-font);
     align-self: flex-end;
     margin-left: auto;
 }
 
 .ai-message {
-    background-color: #ecf0f1;
-    color: #333;
+    background-color: var(--ai-msg-bg);
+    color: var(--ai-msg-font);
 }
 
 .chat-input form {
     display: flex;
     padding: 20px;
-    background-color: #ecf0f1;
+    background-color: var(--chat-input-bg);
 }
 
 #user-input {
@@ -77,8 +139,8 @@ h1 {
 }
 
 #send-btn {
-    background-color: #3498db;
-    color: #fff;
+    background-color: var(--btn-color);
+    color: var(--btn-font);
     border: none;
     border-radius: 25px;
     padding: 10px 20px;
@@ -88,19 +150,19 @@ h1 {
 }
 
 #send-btn:hover {
-    background-color: #2980b9;
+    background-color: var(--btn-hover-color);
 }
 
 .goals-container {
     margin-top: 30px;
-    background-color: #fff;
+    background-color: var(--chat-container-bg);
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
 }
 
 h2 {
-    color: #3498db;
+    color: var(--primary-color);
     margin-bottom: 15px;
 }
 
@@ -140,14 +202,14 @@ h2 {
 #goal-input {
     flex-grow: 1;
     padding: 10px;
-    border: 1px solid #bdc3c7;
+    border: 1px solid var(--btn-hover-color);
     border-radius: 5px;
     font-size: 16px;
 }
 
 #add-goal-btn {
-    background-color: #2ecc71;
-    color: #fff;
+    background-color: var(--btn-color);
+    color: var(--btn-font);
     border: none;
     border-radius: 5px;
     padding: 10px 20px;
