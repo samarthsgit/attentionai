@@ -85,6 +85,10 @@ app.get("/", (req, res) => {
     res.render("index.ejs", {chatHistory: chatHistory});
 });
 
+app.get("/todo-list", (req, res) => {
+    res.render("todo-list.ejs");
+});
+
 app.post("/send", async (req, res) => {
     const userInput = req.body.userInput.trim();
     chatHistory.push({message: userInput, sentBy: "user"});
