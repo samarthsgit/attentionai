@@ -103,6 +103,14 @@ app.post("/send", async (req, res) => {
     }
 });
 
+app.post("/addTask", (req, res) => {
+    const userInput = req.body.userInput;
+    const scheduledTime = req.body.scheduledTime;
+    const duration = req.body.duration;
+    console.log(userInput, scheduledTime, duration);
+    res.redirect("/todo-list");
+});
+
 async function runAi(prompt) {
     const result = await chat.sendMessage(prompt);
     const response = await result.response;

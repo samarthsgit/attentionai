@@ -5,31 +5,32 @@
         <p>Your ADHD Accountability Coach</p>
     </header> -->
 
-    <div class="chat-container">
+    <div class="task-container">
         <div class="toggle-div">
             <a href="/">Chat</a>
             <a href="/todo-list" id="selected-tab">Tasks</a>
         </div>
         <div class="task-list" id="task-list">
+            <div class="task">
+                <input type="checkbox" name="" id="">
+                <p>Go to Gym at 3:30 pm for 50 minutes</p>
+            </div>
         </div>
         <div class="task-input">
-            <form action="/send" method="post">
+            <form action="/addTask" method="post">
                 <div class="text-input-div">
                     <input type="text" id="goal-input" name="userInput" placeholder="Add a new Task...">
                 </div>
                 <div class="input-div">
                     <div class="time-input-div">
-                        <label for="scheduled-time">Scheduled Time:</label>
-                        <input type="time" id="scheduled-time" name="scheduled-time" required>
+                        <label for="scheduledTime">Scheduled Time:</label>
+                        <input type="time" id="scheduled-time" name="scheduledTime" required>
                     </div>
                     <div class="duration-input-div">
-                        <label for="duration">Duration (in minutes):</label>
+                        <label for="duration">Duration in mins:</label>
                         <input type="number" id="duration" name="duration" required>
                     </div> 
                 </div>
-                <!-- <div class="duration-input-div">
-                    
-                </div> -->
                 <button id="add-task-btn" type="submit">Add Task</button>  
                 
             </form>
