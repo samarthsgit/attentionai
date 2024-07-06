@@ -4,6 +4,18 @@ import express from "express";
 import bodyParser from "body-parser";
 import db from "./db.js";
 
+//Creating a temp user
+async function getCurrentUser() {
+    const response = await db.query("SELECT * FROM users WHERE id=$1", [2]);
+    return response.rows[0];
+}
+async function getTodoList(currentUserId) {
+    const response = await db.query("SELECT * FROM tasks WHERE user_id=$1", [currentUserId]);
+    return response.rows;
+}
+
+
+
 const app = express();
 const PORT = 3000;
 
@@ -86,8 +98,10 @@ app.get("/", (req, res) => {
     res.render("index.ejs", {chatHistory: chatHistory});
 });
 
-app.get("/todo-list", (req, res) => {
-    res.render("todo-list.ejs");
+app.get("/todo-list", async (req, res) => {
+    const currentUser = await getCurrentUser();
+    const todoList = await getTodoList(currentUser.id);
+    res.render("todo-list.ejs", {todoList: todoList});
 });
 
 app.post("/send", async (req, res) => {
@@ -104,12 +118,19 @@ app.post("/send", async (req, res) => {
     }
 });
 
-app.post("/addTask", (req, res) => {
-    const userInput = req.body.userInput;
+app.post("/addTask", async (req, res) => {
+    const taskName = req.body.taskName;
     const scheduledTime = req.body.scheduledTime;
     const duration = req.body.duration;
-    console.log(userInput, scheduledTime, duration);
-    res.redirect("/todo-list");
+    console.log(taskName, scheduledTime, duration);
+    try {
+        const currentUser = await getCurrentUser();
+        await db.query("INSERT INTO tasks (user_id, task_name, scheduled_time, duration) VALUES ($1, $2, $3, $4)", 
+            [currentUser.id, taskName, scheduledTime, duration]);
+        res.redirect("/todo-list");
+    } catch(err) {
+        console.error("Error adding new task in DB", err);
+    }
 });
 
 async function runAi(prompt) {

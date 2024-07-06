@@ -11,15 +11,17 @@
             <a href="/todo-list" id="selected-tab">Tasks</a>
         </div>
         <div class="task-list" id="task-list">
-            <div class="task">
-                <input type="checkbox" name="" id="">
-                <p>Go to Gym at 3:30 pm for 50 minutes</p>
-            </div>
+            <% todoList.forEach(task => { %>
+                <div class="task">
+                    <input type="checkbox" name="" id="">
+                    <p><%= task.task_name %> at <%= task.scheduled_time %> for <%= task.duration %> minutes</p>
+                </div>
+            <% }) %>
         </div>
         <div class="task-input">
             <form action="/addTask" method="post">
                 <div class="text-input-div">
-                    <input type="text" id="goal-input" name="userInput" placeholder="Add a new Task...">
+                    <input type="text" id="goal-input" name="taskName" placeholder="Add a new Task...">
                 </div>
                 <div class="input-div">
                     <div class="time-input-div">
