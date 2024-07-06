@@ -2,7 +2,10 @@ import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import express from "express";
 import bodyParser from "body-parser";
-import db from "./db.js";
+import db from "./routes/db.js";
+import authRouter from "./routes/auth.js";
+import session from "express-session";
+import passport from "passport";
 
 //Creating a temp user
 async function getCurrentUser() {
@@ -22,6 +25,16 @@ const PORT = 3000;
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 dotenv.config();
+
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false,
+  }));
+
+app.use(passport.authenticate('session'));
+
+app.use("/", authRouter);
 
 app.listen(PORT, () => {
     console.log(`Listening at Port ${PORT}`);
@@ -95,6 +108,14 @@ const chat = model.startChat({
 let chatHistory = [];
 
 app.get("/", (req, res) => {
+    res.render("landing.ejs");
+});
+
+app.get("/sign-up", (req, res) => {
+    res.render("sign-up.ejs");
+});
+
+app.get("/app", (req, res) => {
     res.render("index.ejs", {chatHistory: chatHistory});
 });
 
@@ -111,7 +132,7 @@ app.post("/send", async (req, res) => {
         const aiOutput = await runAi(userInput);
         chatHistory.push({message: aiOutput, sentBy: "ai"});
         console.log(chatHistory);
-        res.redirect("/");
+        res.redirect("/app");
     } catch(err) {
         console.error("Something went wrong", err);
         res.status(500).send("Oh Snap!");
