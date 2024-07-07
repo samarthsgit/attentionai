@@ -2,9 +2,15 @@ import express from "express";
 import db from "../routes/db.js";
 import { router as geminiRouter, runAi } from "../routes/gemini.js";
 
-const router = express.Router()
+const router = express.Router();
 
-let chatHistory = [];
+function isLoggedIn(req, res, next) {
+    if(req.user) {
+        next();
+    } else {
+        res.redirect("/");
+    }
+}
 
 router.get("/", (req, res) => {
     res.render("landing.ejs");
@@ -14,23 +20,28 @@ router.get("/sign-up", (req, res) => {
     res.render("sign-up.ejs");
 });
 
-router.get("/app", (req, res) => {
+router.get("/app", isLoggedIn, async (req, res) => {
+    const currentUserEmail = req.user.emails[0].value;
+    const chatHistory = await getChatHistory(currentUserEmail);
     res.render("index.ejs", {chatHistory: chatHistory});
 });
 
-router.get("/todo-list", async (req, res) => {
-    const currentUser = await getCurrentUser();
-    const todoList = await getTodoList(currentUser.id);
+router.get("/todo-list", isLoggedIn, async (req, res) => {
+    // const currentUser = await getCurrentUser();
+    const currentUserEmail = req.user.emails[0].value;
+    const todoList = await getTodoList(currentUserEmail);
     res.render("todo-list.ejs", {todoList: todoList});
 });
 
-router.post("/send", async (req, res) => {
+router.post("/send", isLoggedIn, async (req, res) => {
     const userInput = req.body.userInput.trim();
-    chatHistory.push({message: userInput, sentBy: "user"});
+    const currentUserEmail = req.user.emails[0].value;
+    const currentUserId = await getCurrentUserId(currentUserEmail);
+    console.log(currentUserId);
+    await pushChatToDb(currentUserId, userInput, "user");
     try {
         const aiOutput = await runAi(userInput);
-        chatHistory.push({message: aiOutput, sentBy: "ai"});
-        console.log(chatHistory);
+        await pushChatToDb(currentUserId, aiOutput, "ai");
         res.redirect("/app");
     } catch(err) {
         console.error("Something went wrong", err);
@@ -38,15 +49,16 @@ router.post("/send", async (req, res) => {
     }
 });
 
-router.post("/addTask", async (req, res) => {
+router.post("/addTask", isLoggedIn, async (req, res) => {
     const taskName = req.body.taskName;
     const scheduledTime = req.body.scheduledTime;
     const duration = req.body.duration;
+    const currentUserEmail = req.user.emails[0].value;
+    const currentUserId = await getCurrentUserId(currentUserEmail);
     console.log(taskName, scheduledTime, duration);
     try {
-        const currentUser = await getCurrentUser();
         await db.query("INSERT INTO tasks (user_id, task_name, scheduled_time, duration) VALUES ($1, $2, $3, $4)", 
-            [currentUser.id, taskName, scheduledTime, duration]);
+            [currentUserId, taskName, scheduledTime, duration]);
         res.redirect("/todo-list");
     } catch(err) {
         console.error("Error adding new task in DB", err);
@@ -54,13 +66,44 @@ router.post("/addTask", async (req, res) => {
 });
 
 //database queries
-async function getCurrentUser() {
-    const response = await db.query("SELECT * FROM users WHERE id=$1", [2]);
-    return response.rows[0];
+async function getCurrentUserId(currentUserEmail) {
+    const response = await db.query("SELECT id FROM users WHERE email=$1", [currentUserEmail]);
+    return response.rows[0].id;
 }
-async function getTodoList(currentUserId) {
-    const response = await db.query("SELECT * FROM tasks WHERE user_id=$1", [currentUserId]);
-    return response.rows;
+async function getTodoList(currentUserEmail) {
+    //try-catch block for recieveing todo list
+    try {
+        const response = await db.query(`SELECT *
+            FROM tasks
+            INNER JOIN users ON tasks.user_id = users.id
+            WHERE users.email=$1;`, [currentUserEmail]);
+        return response.rows;
+    } catch(err) {
+        console.error("Error retreieving ToDo List", err);
+    }  
+}
+async function getChatHistory(currentUserEmail) {
+    //try-catch block for getting chat history
+    try {
+        const response = await db.query(`SELECT *
+                                            FROM chats
+                                            INNER JOIN users ON chats.user_id = users.id
+                                            WHERE users.email=$1;`, [currentUserEmail]);
+        // const chatHistory = [];
+        // response.rows.forEach(row => chatHistory.push(row.message));
+        return response.rows;
+    } catch(err) {
+        console.error("Error retrieveing chat history", err);
+    }
+}
+
+async function pushChatToDb(currentUserId, message, sent_by) {
+    //try-catch to push chat to db
+    try {
+        await db.query(`INSERT INTO chats (user_id, message, sent_by) VALUES ($1, $2, $3)`, [currentUserId, message, sent_by]);
+    } catch(err) {
+        console.error("Error pushing msg to db", err);
+    }
 }
 
 

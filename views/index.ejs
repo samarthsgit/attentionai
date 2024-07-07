@@ -14,7 +14,7 @@
 
             <!-- Messages will be dynamically added here -->
             <% chatHistory.forEach(chat => { %>
-                <div class="message <%= chat.sentBy %>-message">
+                <div class="message <%= chat.sent_by %>-message">
                     <%= chat.message %>
                 </div>
             <% }) %>
