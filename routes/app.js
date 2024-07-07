@@ -1,6 +1,6 @@
 import express from "express";
 import db from "../routes/db.js";
-import { router as geminiRouter,runAi, startAi, aiService } from "../routes/gemini.js";
+import { router as geminiRouter,aiService } from "../routes/gemini.js";
 
 const router = express.Router();
 
@@ -23,6 +23,7 @@ router.get("/sign-up", (req, res) => {
 router.get("/app", isLoggedIn, async (req, res) => {
     const currentUserEmail = req.user.emails[0].value;
     const chatHistory = await getChatHistory(currentUserEmail);
+    console.log(chatHistory[chatHistory.length-2].message);
     res.render("index.ejs", {chatHistory: chatHistory});
     // startAi(currentUserEmail);
     // aiService.start(currentUserEmail);
@@ -78,7 +79,8 @@ async function getTodoList(currentUserEmail) {
         const response = await db.query(`SELECT *
             FROM tasks
             INNER JOIN users ON tasks.user_id = users.id
-            WHERE users.email=$1;`, [currentUserEmail]);
+            WHERE users.email=$1
+            ORDER BY scheduled_time ASC;`, [currentUserEmail]);
         return response.rows;
     } catch(err) {
         console.error("Error retreieving ToDo List", err);
@@ -90,7 +92,8 @@ async function getChatHistory(currentUserEmail) {
         const response = await db.query(`SELECT *
                                             FROM chats
                                             INNER JOIN users ON chats.user_id = users.id
-                                            WHERE users.email=$1;`, [currentUserEmail]);
+                                            WHERE users.email=$1
+                                            ORDER BY chats.created_at ASC;`, [currentUserEmail]);
         return response.rows;
     } catch(err) {
         console.error("Error retrieveing chat history", err);

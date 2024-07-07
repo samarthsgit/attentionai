@@ -3,9 +3,6 @@ import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/ge
 import db from "../routes/db.js";
 
 const router = express.Router();
-// const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-
-// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
 function isLoggedIn(req, res, next) {
     if(req.user) {
@@ -58,51 +55,16 @@ Keywords and Phrases to Avoid:
 
 From here onwards you'll be talking to the user of this app. 
 `;
-
-async function startAi(currentUserEmail) {
-    const chatHistory = await getChatHistory(currentUserEmail);
-    const pushHistory = [];
-    chatHistory.forEach(entry => {
-        let sentBy;
-        if (entry.sent_by == "user") {
-            sentBy = "user";
-        } else {
-            sentBy = "model";
-        }
-        const chatObj = {
-            role: sentBy,
-            parts: [{text: entry.message}]
-        }
-        pushHistory.push(chatObj);
-    });
-    const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
-    const chat = model.startChat({
-        // history: [
-        // {
-        //     role: "user",
-        //     parts: [{ text: instructionsToAi }],
-        // },
-        // {
-        //     role: "model",
-        //     parts: [{ text: "Got it! From now onwards I am an ADHD Accountability Coach" }],
-        // },
-        // ],
-        history: pushHistory,
-        generationConfig: {
-        maxOutputTokens: 100,
-        },
-    });
-    return chat;
-}
-
-async function runAi(prompt) {
-    const chat = await startAi();
-    const result = await chat.sendMessage(prompt);
-    const response = await result.response;
-    const text = response.text();
-    return text;
-}
+let instructionsToAiArr = [
+    {
+        role: "user",
+        parts: [{ text: instructionsToAi }],
+    },
+    {
+        role: "model",
+        parts: [{ text: "Got it! From now onwards I am an ADHD Accountability Coach" }],
+    },
+    ];
 
 ////Testing new Method
 class AiService {
@@ -112,7 +74,7 @@ class AiService {
 
     async start(currentUserEmail) {
         const chatHistory = await getChatHistory(currentUserEmail);
-        const pushHistory = [];
+        const pushHistory = instructionsToAiArr;
         chatHistory.forEach(entry => {
             let sentBy;
             if (entry.sent_by == "user") {
@@ -126,6 +88,7 @@ class AiService {
             }
             pushHistory.push(chatObj);
         });
+        console.log(pushHistory[0].parts[0].text);
         const model = this.genAI.getGenerativeModel({ 
             model: "gemini-1.5-flash",
             safetySettings: [
@@ -135,16 +98,6 @@ class AiService {
                 }
             ]  });
         this.chat = model.startChat({
-            // history: [
-            //     {
-            //         role: "user",
-            //         parts: [{ text: instructionsToAi }],
-            //     },
-            //     {
-            //         role: "model",
-            //         parts: [{ text: "Got it! From now onwards I am an ADHD Accountability Coach" }],
-            //     },
-            // ],
             history: pushHistory,
             generationConfig: {
                 maxOutputTokens: 100,
@@ -166,8 +119,6 @@ class AiService {
 }
 
 const aiService = new AiService(process.env.API_KEY);
-// aiService.start();
-/////New Method Test
 
 
 
@@ -188,8 +139,4 @@ async function getChatHistory(currentUserEmail) {
 
 
 
-
-
-
-
-export { router, runAi, startAi, aiService };
+export { router, aiService };
