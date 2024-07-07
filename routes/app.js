@@ -1,6 +1,6 @@
 import express from "express";
 import db from "../routes/db.js";
-import { router as geminiRouter, runAi } from "../routes/gemini.js";
+import { router as geminiRouter,runAi, startAi, aiService } from "../routes/gemini.js";
 
 const router = express.Router();
 
@@ -24,6 +24,8 @@ router.get("/app", isLoggedIn, async (req, res) => {
     const currentUserEmail = req.user.emails[0].value;
     const chatHistory = await getChatHistory(currentUserEmail);
     res.render("index.ejs", {chatHistory: chatHistory});
+    // startAi(currentUserEmail);
+    // aiService.start(currentUserEmail);
 });
 
 router.get("/todo-list", isLoggedIn, async (req, res) => {
@@ -40,12 +42,12 @@ router.post("/send", isLoggedIn, async (req, res) => {
     console.log(currentUserId);
     await pushChatToDb(currentUserId, userInput, "user");
     try {
-        const aiOutput = await runAi(userInput);
+        const aiOutput = await aiService.run(currentUserEmail, userInput);
         await pushChatToDb(currentUserId, aiOutput, "ai");
         res.redirect("/app");
     } catch(err) {
         console.error("Something went wrong", err);
-        res.status(500).send("Oh Snap!");
+        res.status(500).send("Error in fetching ai output");
     }
 });
 
@@ -89,8 +91,6 @@ async function getChatHistory(currentUserEmail) {
                                             FROM chats
                                             INNER JOIN users ON chats.user_id = users.id
                                             WHERE users.email=$1;`, [currentUserEmail]);
-        // const chatHistory = [];
-        // response.rows.forEach(row => chatHistory.push(row.message));
         return response.rows;
     } catch(err) {
         console.error("Error retrieveing chat history", err);

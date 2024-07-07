@@ -5,7 +5,7 @@ import db from "./routes/db.js";
 import authRouter from "./routes/auth.js";
 import session from "express-session";
 import passport from "passport";
-import { router as geminiRouter, runAi } from "./routes/gemini.js";
+// import { router as geminiRouter, runAi } from "./routes/gemini.js";
 import appRouter from "./routes/app.js";
 
 const app = express();

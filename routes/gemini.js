@@ -1,10 +1,19 @@
 import express from "express";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
+import db from "../routes/db.js";
 
 const router = express.Router();
-const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+// const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+
+function isLoggedIn(req, res, next) {
+    if(req.user) {
+        next();
+    } else {
+        res.redirect("/");
+    }
+}
 
 let instructionsToAi = `
 Hii! This is the message from the admin to you. I am using you for my app AttentionAI. It is designed for people with ADHD to keep them accountable and provide emotional support. Below are more details about your role.
@@ -50,27 +59,131 @@ Keywords and Phrases to Avoid:
 From here onwards you'll be talking to the user of this app. 
 `;
 
-const chat = model.startChat({
-    history: [
-    {
-        role: "user",
-        parts: [{ text: instructionsToAi }],
-    },
-    {
-        role: "model",
-        parts: [{ text: "Got it! From now onwards I am an ADHD Accountability Coach" }],
-    },
-    ],
-    generationConfig: {
-    maxOutputTokens: 100,
-    },
-});
+async function startAi(currentUserEmail) {
+    const chatHistory = await getChatHistory(currentUserEmail);
+    const pushHistory = [];
+    chatHistory.forEach(entry => {
+        let sentBy;
+        if (entry.sent_by == "user") {
+            sentBy = "user";
+        } else {
+            sentBy = "model";
+        }
+        const chatObj = {
+            role: sentBy,
+            parts: [{text: entry.message}]
+        }
+        pushHistory.push(chatObj);
+    });
+    const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+    const chat = model.startChat({
+        // history: [
+        // {
+        //     role: "user",
+        //     parts: [{ text: instructionsToAi }],
+        // },
+        // {
+        //     role: "model",
+        //     parts: [{ text: "Got it! From now onwards I am an ADHD Accountability Coach" }],
+        // },
+        // ],
+        history: pushHistory,
+        generationConfig: {
+        maxOutputTokens: 100,
+        },
+    });
+    return chat;
+}
 
 async function runAi(prompt) {
+    const chat = await startAi();
     const result = await chat.sendMessage(prompt);
     const response = await result.response;
     const text = response.text();
     return text;
+}
+
+////Testing new Method
+class AiService {
+    constructor(apiKey) {
+        this.genAI = new GoogleGenerativeAI(apiKey);
+    }
+
+    async start(currentUserEmail) {
+        const chatHistory = await getChatHistory(currentUserEmail);
+        const pushHistory = [];
+        chatHistory.forEach(entry => {
+            let sentBy;
+            if (entry.sent_by == "user") {
+                sentBy = "user";
+            } else {
+                sentBy = "model";
+            }
+            const chatObj = {
+                role: sentBy,
+                parts: [{text: entry.message}]
+            }
+            pushHistory.push(chatObj);
+        });
+        const model = this.genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            safetySettings: [
+                {
+                    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                }
+            ]  });
+        this.chat = model.startChat({
+            // history: [
+            //     {
+            //         role: "user",
+            //         parts: [{ text: instructionsToAi }],
+            //     },
+            //     {
+            //         role: "model",
+            //         parts: [{ text: "Got it! From now onwards I am an ADHD Accountability Coach" }],
+            //     },
+            // ],
+            history: pushHistory,
+            generationConfig: {
+                maxOutputTokens: 100,
+            },
+        });
+    }
+
+    async run(currentUserEmail, prompt) {
+        console.log(currentUserEmail);
+        await this.start(currentUserEmail);
+        if (!this.chat) {
+            throw new Error("Chat model not initialized. Call start() first.");
+        }
+        const result = await this.chat.sendMessage(prompt);
+        const response = await result.response;
+        const text = await response.text();
+        return text;
+    }
+}
+
+const aiService = new AiService(process.env.API_KEY);
+// aiService.start();
+/////New Method Test
+
+
+
+
+//DB queries
+async function getChatHistory(currentUserEmail) {
+    //try-catch block for getting chat history
+    try {
+        const response = await db.query(`SELECT *
+                                            FROM chats
+                                            INNER JOIN users ON chats.user_id = users.id
+                                            WHERE users.email=$1;`, [currentUserEmail]);
+        return response.rows;
+    } catch(err) {
+        console.error("Error retrieveing chat history", err);
+    }
 }
 
 
@@ -78,4 +191,5 @@ async function runAi(prompt) {
 
 
 
-export { router, runAi };
+
+export { router, runAi, startAi, aiService };
