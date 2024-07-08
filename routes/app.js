@@ -60,7 +60,7 @@ router.post("/addTask", isLoggedIn, async (req, res) => {
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
     //Sending data to task-scheduler.js
-    taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId);
+    taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail);
     console.log(taskName, scheduledTime, duration);
     try {
         await db.query("INSERT INTO tasks (user_id, task_name, scheduled_time, duration) VALUES ($1, $2, $3, $4)", 

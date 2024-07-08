@@ -88,7 +88,6 @@ class AiService {
             }
             pushHistory.push(chatObj);
         });
-        console.log(pushHistory[0].parts[0].text);
         const model = this.genAI.getGenerativeModel({ 
             model: "gemini-1.5-flash",
             safetySettings: [
