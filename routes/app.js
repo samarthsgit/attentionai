@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../routes/db.js";
 import { router as geminiRouter,aiService } from "../routes/gemini.js";
+import { taskScheduler } from "../routes/task-scheduler.js";
 
 const router = express.Router();
 
@@ -23,7 +24,6 @@ router.get("/sign-up", (req, res) => {
 router.get("/app", isLoggedIn, async (req, res) => {
     const currentUserEmail = req.user.emails[0].value;
     const chatHistory = await getChatHistory(currentUserEmail);
-    console.log(chatHistory[chatHistory.length-2].message);
     res.render("index.ejs", {chatHistory: chatHistory});
     // startAi(currentUserEmail);
     // aiService.start(currentUserEmail);
@@ -55,9 +55,12 @@ router.post("/send", isLoggedIn, async (req, res) => {
 router.post("/addTask", isLoggedIn, async (req, res) => {
     const taskName = req.body.taskName;
     const scheduledTime = req.body.scheduledTime;
+    const currentDateString = req.body.currentDate;
     const duration = req.body.duration;
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
+    //Sending data to task-scheduler.js
+    taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId);
     console.log(taskName, scheduledTime, duration);
     try {
         await db.query("INSERT INTO tasks (user_id, task_name, scheduled_time, duration) VALUES ($1, $2, $3, $4)", 

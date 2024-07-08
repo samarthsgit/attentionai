@@ -27,6 +27,7 @@
                     <div class="time-input-div">
                         <label for="scheduledTime">Scheduled Time:</label>
                         <input type="time" id="scheduled-time" name="scheduledTime" required>
+                        <input type="hidden" id="currentDate" name="currentDate" value="">
                     </div>
                     <div class="duration-input-div">
                         <label for="duration">Duration in mins:</label>
@@ -41,6 +42,13 @@
 </div>
 
 <script>
-    const chatMessages = document.getElementById('chat-messages');
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    const taskList = document.getElementById('task-list');
+    taskList.scrollTop = taskList.scrollHeight;
+
+    //Sending Current Date
+    const currentDateString = new Date().toString();
+    const currentDateElement = document.getElementById('currentDate');
+    currentDateElement.setAttribute('value', currentDateString);
+    console.log(currentDateElement.value);
+    
 </script>
