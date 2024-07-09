@@ -2,6 +2,7 @@ import express from "express";
 import schedule from "node-schedule";
 import { router as geminiRouter,aiService } from "../routes/gemini.js";
 import db from "../routes/db.js";
+import { io } from "../index.js";
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ class scheduler {
         currentDate.setHours(hoursInt, minutesInt, 0);
         this.remindTime = currentDate;
         const job = schedule.scheduleJob(this.remindTime, () => {
-            console.log(`Scheduler Workded`);
+            console.log(`Scheduler Worked`);
             this.triggerAi(this.taskName);
         });
     }
@@ -34,7 +35,10 @@ class scheduler {
         try {
             const aiOutput = await aiService.run(this.currentUserEmail, adminMsg);
             await this.pushChatToDb(this.currentUserId, aiOutput, "ai");
-            //From here I want to redirect user to /app
+            //From here redirect user to /app
+            //For some reason, sending to specific id didn't work
+            io.to("redirect-room").emit('redirect', { url: '/app', userId: this.currentUserId });
+            console.log(`Emitted redirect event to user ${this.currentUserId}`);
             
         } catch(err) {
             console.error("Error triggering ai", err);

@@ -23,8 +23,9 @@ router.get("/sign-up", (req, res) => {
 
 router.get("/app", isLoggedIn, async (req, res) => {
     const currentUserEmail = req.user.emails[0].value;
+    const currentUserId = await getCurrentUserId(currentUserEmail);
     const chatHistory = await getChatHistory(currentUserEmail);
-    res.render("index.ejs", {chatHistory: chatHistory});
+    res.render("index.ejs", {chatHistory: chatHistory, currentUserId: currentUserId});
     // startAi(currentUserEmail);
     // aiService.start(currentUserEmail);
 });
@@ -32,8 +33,9 @@ router.get("/app", isLoggedIn, async (req, res) => {
 router.get("/todo-list", isLoggedIn, async (req, res) => {
     // const currentUser = await getCurrentUser();
     const currentUserEmail = req.user.emails[0].value;
+    const currentUserId = await getCurrentUserId(currentUserEmail);
     const todoList = await getTodoList(currentUserEmail);
-    res.render("todo-list.ejs", {todoList: todoList});
+    res.render("todo-list.ejs", {todoList: todoList, currentUserId: currentUserId});
 });
 
 router.post("/send", isLoggedIn, async (req, res) => {

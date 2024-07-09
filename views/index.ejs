@@ -37,9 +37,26 @@
             <button id="add-goal-btn">Add Goal</button>
         </div>
     </div> -->
+    
 </div>
 
 <script>
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.scrollTop = chatMessages.scrollHeight;
+</script>
+
+<!-- Socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    console.log("script is running!");
+    const userId = <%= currentUserId %>;
+    const socket = io();
+    
+    socket.emit('storeClientInfo', {userId: userId});
+    
+    socket.on('redirect', (data) => {
+        if (data.userId == userId) {
+            window.location.href = data.url;
+        }
+    });
 </script>
