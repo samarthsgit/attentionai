@@ -39,7 +39,9 @@ router.get("/todo-list", isLoggedIn, async (req, res) => {
 });
 
 router.post("/send", isLoggedIn, async (req, res) => {
+    // const userInput = req.body.userInput.trim();
     const userInput = req.body.userInput.trim();
+    console.log(userInput);
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
     console.log(currentUserId);
@@ -47,7 +49,8 @@ router.post("/send", isLoggedIn, async (req, res) => {
     try {
         const aiOutput = await aiService.run(currentUserEmail, userInput);
         await pushChatToDb(currentUserId, aiOutput, "ai");
-        res.redirect("/app");
+        // res.redirect("/app");
+        res.json({ response: aiOutput });
     } catch(err) {
         console.error("Something went wrong", err);
         res.status(500).send("Error in fetching ai output");

@@ -20,7 +20,7 @@
             <% }) %>
         </div>
         <div class="chat-input">
-            <form action="/send" method="post">
+            <form action="/send" method="post" id="chat-form">
                 <input type="text" id="user-input" name="userInput" placeholder="Type your message...">
                 <button id="send-btn" type="submit">Send</button>
             </form>
@@ -39,6 +39,9 @@
     </div> -->
     
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="js/chat.js"></script>
 
 <script>
     const chatMessages = document.getElementById('chat-messages');
