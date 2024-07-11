@@ -70,7 +70,7 @@ router.post("/addTask", isLoggedIn, async (req, res) => {
     try {
         await db.query("INSERT INTO tasks (user_id, task_name, scheduled_time, duration) VALUES ($1, $2, $3, $4)", 
             [currentUserId, taskName, scheduledTime, duration]);
-        res.redirect("/todo-list");
+        // res.redirect("/todo-list");
     } catch(err) {
         console.error("Error adding new task in DB", err);
     }

@@ -19,7 +19,7 @@
             <% }) %>
         </div>
         <div class="task-input">
-            <form action="/addTask" method="post">
+            <form action="/addTask" method="post" id="todo-form">
                 <div class="text-input-div">
                     <input type="text" id="goal-input" name="taskName" placeholder="Add a new Task...">
                 </div>
@@ -41,7 +41,7 @@
     </div>
 </div>
 
-<script>
+<!-- <script>
     const taskList = document.getElementById('task-list');
     taskList.scrollTop = taskList.scrollHeight;
 
@@ -51,7 +51,10 @@
     currentDateElement.setAttribute('value', currentDateString);
     console.log(currentDateElement.value);
     
-</script>
+</script> -->
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="js/todo-list.js"></script>
 
 <!-- Socket.io -->
 <script src="/socket.io/socket.io.js"></script>
