@@ -70,50 +70,54 @@ let instructionsToAiArr = [
 class AiService {
     constructor(apiKey) {
         this.genAI = new GoogleGenerativeAI(apiKey);
+        this.chats = new Map(); // Store active chats
     }
 
-    async start(currentUserEmail) {
-        const chatHistory = await getChatHistory(currentUserEmail);
-        const pushHistory = instructionsToAiArr;
-        chatHistory.forEach(entry => {
-            let sentBy;
-            if (entry.sent_by == "user") {
-                sentBy = "user";
-            } else {
-                sentBy = "model";
-            }
-            const chatObj = {
-                role: sentBy,
-                parts: [{text: entry.message}]
-            }
-            pushHistory.push(chatObj);
-        });
-        const model = this.genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            safetySettings: [
-                {
-                    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                    threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-                }
-            ]  });
-        this.chat = model.startChat({
-            history: pushHistory,
-            generationConfig: {
-                maxOutputTokens: 100,
-            },
-        });
+    async initializeChat(currentUserEmail) {
+        if (!this.chats.has(currentUserEmail)) {
+            const model = this.genAI.getGenerativeModel({ 
+                model: "gemini-1.5-flash",
+                safetySettings: [
+                    {
+                        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    }
+                ]
+            });
+
+            const chatHistory = await getChatHistory(currentUserEmail);
+            const pushHistory = [...instructionsToAiArr, ...this.formatChatHistory(chatHistory)];
+
+            const chat = model.startChat({
+                history: pushHistory,
+                generationConfig: {
+                    maxOutputTokens: 500, // Increased token limit
+                },
+            });
+
+            this.chats.set(currentUserEmail, chat);
+        }
+    }
+
+    formatChatHistory(chatHistory) {
+        return chatHistory.map(entry => ({
+            role: entry.sent_by === "user" ? "user" : "model",
+            parts: [{text: entry.message}]
+        }));
     }
 
     async run(currentUserEmail, prompt) {
-        console.log(currentUserEmail);
-        await this.start(currentUserEmail);
-        if (!this.chat) {
-            throw new Error("Chat model not initialized. Call start() first.");
+        await this.initializeChat(currentUserEmail);
+        const chat = this.chats.get(currentUserEmail);
+        
+        try {
+            const result = await chat.sendMessage(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error) {
+            console.error("Error in AI response:", error);
+            throw error;
         }
-        const result = await this.chat.sendMessage(prompt);
-        const response = await result.response;
-        const text = await response.text();
-        return text;
     }
 }
 
