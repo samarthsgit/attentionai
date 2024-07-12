@@ -153,3 +153,6 @@ function createNewTaskDiv(taskId, taskListElement, listContainer, taskName, sche
     listContainer.appendChild(taskDiv);
     listContainer.scrollTop = listContainer.scrollHeight;
 }
+
+
+

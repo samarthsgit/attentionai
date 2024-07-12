@@ -8,6 +8,8 @@ import passport from "passport";
 // import { router as geminiRouter, runAi } from "./routes/gemini.js";
 import appRouter from "./routes/app.js";
 import { Server } from 'socket.io';
+import swRouter from "./routes/handle-sw.js";
+import cors from "cors";
 
 const app = express();
 const PORT = 3000;
@@ -15,6 +17,7 @@ const PORT = 3000;
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(express.static("public"));
+app.use(cors());
 dotenv.config();
 
 app.use(session({
@@ -27,6 +30,7 @@ app.use(passport.authenticate('session'));
 
 app.use("/", authRouter);
 app.use("/", appRouter);
+app.use("/", swRouter);
 
 const server = app.listen(PORT, () => {
     console.log(`Listening at Port ${PORT}`);
