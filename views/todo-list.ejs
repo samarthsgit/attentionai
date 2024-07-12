@@ -1,9 +1,5 @@
 <%- include('partials/header.ejs') %>
 <div class="container">
-    <!-- <header>
-        <h1>AttentionAI</h1>
-        <p>Your ADHD Accountability Coach</p>
-    </header> -->
 
     <div class="task-container">
         <div class="toggle-div">
@@ -11,12 +7,30 @@
             <a href="/todo-list" id="selected-tab">Tasks</a>
         </div>
         <div class="task-list" id="task-list">
+            <div id="list-container">
             <% todoList.forEach(task => { %>
-                <div class="task">
-                    <input type="checkbox" name="" id="">
-                    <p><%= task.task_name %> at <%= task.scheduled_time %> for <%= task.duration %> minutes</p>
+                <!-- Convert time to 12 hr format -->
+                <% const [hour, min, sec] = task.scheduled_time.split(':');
+                let hour12 = hour % 12 || 12;
+                let period = hour >= 12 ? 'PM' : 'AM';
+                task.scheduled_time = `${hour12}:${min} ${period}`;
+                %>
+                <!-- Render each task -->
+                <div class="task" id="task-<%= task.id %>">
+                    <div class="task-content">
+                        <input type="checkbox" name="">
+                        <label for="task-<%= task.id %>">
+                            <span class="task-name"><%= task.task_name %></span>
+                            <span class="task-details">
+                                <span class="task-time"><%= task.scheduled_time %></span>
+                                <span class="task-duration"><%= task.duration %> min</span>
+                            </span>
+                        </label>
+                    </div>
+                    <button class="delete-task" id="delete-task-<%= task.id %>" aria-label="Delete task" onclick="deleteTask(`<%= task.id %>`)">×</button>
                 </div>
             <% }) %>
+            </div>
         </div>
         <div class="task-input">
             <form action="/addTask" method="post" id="todo-form">
@@ -41,18 +55,6 @@
     </div>
 </div>
 
-<!-- <script>
-    const taskList = document.getElementById('task-list');
-    taskList.scrollTop = taskList.scrollHeight;
-
-    //Sending Current Date
-    const currentDateString = new Date().toString();
-    const currentDateElement = document.getElementById('currentDate');
-    currentDateElement.setAttribute('value', currentDateString);
-    console.log(currentDateElement.value);
-    
-</script> -->
-
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="js/todo-list.js"></script>
 
@@ -71,3 +73,5 @@
         }
     });
 </script>
+
+

@@ -34,7 +34,7 @@ router.get("/todo-list", isLoggedIn, async (req, res) => {
     // const currentUser = await getCurrentUser();
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
-    const todoList = await getTodoList(currentUserEmail);
+    const todoList = await getTodoList(currentUserId);
     res.render("todo-list.ejs", {todoList: todoList, currentUserId: currentUserId});
 });
 
@@ -68,27 +68,37 @@ router.post("/addTask", isLoggedIn, async (req, res) => {
     taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail);
     console.log(taskName, scheduledTime, duration);
     try {
-        await db.query("INSERT INTO tasks (user_id, task_name, scheduled_time, duration) VALUES ($1, $2, $3, $4)", 
+        const response = await db.query("INSERT INTO tasks (user_id, task_name, scheduled_time, duration) VALUES ($1, $2, $3, $4) RETURNING id", 
             [currentUserId, taskName, scheduledTime, duration]);
+        const taskId = response.rows[0].id;
+        res.json({ response: taskId });
         // res.redirect("/todo-list");
     } catch(err) {
         console.error("Error adding new task in DB", err);
     }
 });
 
+router.post('/delete-task', isLoggedIn, async (req, res) => {
+    const taskId = req.body.taskId;
+    try {
+        await db.query('DELETE FROM tasks WHERE id=$1', [taskId]);
+        console.log(`Task with id ${taskId} is deleted`);
+    } catch(err) {
+        console.error('Error deleting task', err);
+    }
+})
+
 //database queries
 async function getCurrentUserId(currentUserEmail) {
     const response = await db.query("SELECT id FROM users WHERE email=$1", [currentUserEmail]);
     return response.rows[0].id;
 }
-async function getTodoList(currentUserEmail) {
+async function getTodoList(currentUserId) {
     //try-catch block for recieveing todo list
     try {
         const response = await db.query(`SELECT *
             FROM tasks
-            INNER JOIN users ON tasks.user_id = users.id
-            WHERE users.email=$1
-            ORDER BY scheduled_time ASC;`, [currentUserEmail]);
+            WHERE tasks.user_id=$1`, [currentUserId]);
         return response.rows;
     } catch(err) {
         console.error("Error retreieving ToDo List", err);
