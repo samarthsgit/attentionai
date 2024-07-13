@@ -42,15 +42,15 @@ nav {
 }
 
 .logo-div {
-    height: 50px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .logo-div img {
     height: 50px;
     border-radius: 50%;
+    border: 2px solid white;
 }
 
 .profile-pic-div {
@@ -512,3 +512,32 @@ h2 {
     color: var(--btn-hover-color);
 }
 
+
+/* Styling Enable Notifications Button */
+#notification-btn {
+    position: absolute;
+    left: calc(50% - 73.5px);
+    padding: 10px;
+    background-color: var(--primary-color);
+    border: 2px solid var(--heading-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--heading-color);
+    transition: 200ms;
+}
+
+#notification-btn:hover {
+    background-color: var(--heading-color);
+    border: 2px solid var(--ai-msg-bg);
+    color: var(--user-msg-bg)
+}
+
+@media (max-width: 600px) {
+    #notification-btn {
+        padding: 5px;
+        font-size: 14px;
+        /* right: 100px; */
+        left: auto;
+        position: relative;
+    }
+}
