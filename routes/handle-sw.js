@@ -32,7 +32,9 @@ router.post("/save-subscription", async (req, res) => {
 
 router.post("/send-notification", async (req, res) => {
     const userId = req.body.userId;
+    console.log(`User id recieve ind send-not ${userId}`)
     const subscription = await getSubscription(userId);
+    console.log(`Subscription recievd in send-not ${subscription}`)
     webPush.sendNotification(subscription, "Hello World!");
     res.json({"status": "Success", "message": "Message sent to push service"});
 });
