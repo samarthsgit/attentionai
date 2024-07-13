@@ -73,7 +73,10 @@ import cron from "node-cron";
 import { router as geminiRouter, aiService } from "../routes/gemini.js";
 import db from "../routes/db.js";
 import { io } from "../index.js";
+import axios from "axios";
+import dotenv from "dotenv";
 
+dotenv.config();
 const router = express.Router();
 
 class Scheduler {
@@ -113,6 +116,15 @@ class Scheduler {
             await this.pushChatToDb(this.currentUserId, aiOutput, "ai");
             io.to("redirect-room").emit('redirect', { url: '/app', userId: this.currentUserId });
             console.log(`Emitted redirect event to user ${this.currentUserId}`);
+            //Sending notification using service-worker
+            try {
+                await axios.post(`${process.env.DOMAIN_NAME}/send-notification`, {
+                    userId: this.currentUserId,
+                    aiMessage: aiOutput
+                });
+            } catch(err) {
+                console.error("Error posting to sw", err);
+            }
         } catch(err) {
             console.error("Error triggering ai", err);
         }

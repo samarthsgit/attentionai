@@ -32,11 +32,22 @@ router.post("/save-subscription", async (req, res) => {
 
 router.post("/send-notification", async (req, res) => {
     const userId = req.body.userId;
-    console.log(`User id recieve ind send-not ${userId}`)
+    const aiMessage = req.body.aiMessage;
     const subscription = await getSubscription(userId);
+
+    console.log(`User id recieve in send-not ${userId}`)
+    console.log(`aiMessage recieve in send-not ${aiMessage}`)
     console.log(`Subscription recievd in send-not ${subscription}`)
-    webPush.sendNotification(subscription, "Hello World!");
-    res.json({"status": "Success", "message": "Message sent to push service"});
+
+    const payload = JSON.stringify({
+        title: "AttentionAI",
+        body: aiMessage,
+        icon: "/images/logo.png", // Make sure the path to the icon is correct
+        url: `${process.env.DOMAIN_NAME}/app`
+    });
+
+    await webPush.sendNotification(subscription, payload);
+    res.json({"status": "Success", "message": "Message sent to push service", 'aiMessage': aiMessage});
 });
 
 

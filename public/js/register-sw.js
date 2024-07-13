@@ -1,6 +1,6 @@
-// const userId = <%= currentUserId %>; //Present in index.ejs
-
 //Register Service Worker, Initializing Web Push
+//Can access client side
+
 function checkPermission() {
     if(!('serviceWorker' in navigator)) {
         throw new Error("No support for service worker!");
@@ -44,3 +44,12 @@ async function main() {
         console.error("Error in service worker setup:", error);
     }
 }
+
+
+//Check if already registered and hide the button
+// document.addEventListener('DOMContentLoaded', e => {
+//     if (Notification.permission == 'granted') {
+//         const notificationBtn = document.getElementById('notification-btn');
+//         notificationBtn.style.display = 'none';
+//     }
+// }); 

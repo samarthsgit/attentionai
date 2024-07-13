@@ -10,8 +10,21 @@ self.addEventListener('activate', async (e) => {
     console.log(response);
 });
 
+// self.addEventListener('push', e => {
+//     self.registration.showNotification("Woooh!", {body: e.data.text()});
+// });
+
 self.addEventListener('push', e => {
-    self.registration.showNotification("Woooh!", {body: e.data.text()});
+    const data = e.data.json();
+    const options = {
+        body: data.body,
+        icon: data.icon,
+        data: {
+            url: data.url
+        }
+    };
+
+    self.registration.showNotification(data.title, options);
 });
 
 self.addEventListener('message', function(event) {
@@ -20,6 +33,29 @@ self.addEventListener('message', function(event) {
         self.userId = data.userId;
         console.log('Service Worker received userId:', self.userId);
     }
+});
+
+//On clicking notification
+self.addEventListener('notificationclick', e => {
+    const notification = e.notification;
+    const url = notification.data.url;
+
+    e.notification.close(); // Close the notification
+
+    e.waitUntil(
+        clients.matchAll({ type: 'window' }).then(windowClients => {
+            // Check if there is already a window/tab open with the target URL
+            for (let client of windowClients) {
+                if (client.url === url && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // If not, then open the target URL in a new window/tab
+            if (clients.openWindow) {
+                return clients.openWindow(url);
+            }
+        })
+    );
 });
 
 
