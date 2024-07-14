@@ -54,17 +54,16 @@ nav {
 }
 
 .profile-pic-div {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     
 }
 
 .profile-pic-div img {
-    height: 65px;
-    /* border-radius: 50%; */
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid white;
 }
 
 

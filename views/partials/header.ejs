@@ -8,7 +8,7 @@
 </head>
 <body>
     <nav>
-        <div class="brand-div">
+        <div class="brand-div" id="brand-div">
             <div class="logo-div">
                 <img src="images/logo.png" alt="logo" id="logo">
             </div>
@@ -17,14 +17,23 @@
         <button onclick="main()" id="notification-btn">Enable Notifications</button>
         <div class="user-div">
             <div class="profile-pic-div">
-                <img src="images/user-profile-pic.png" alt="user-icon" class="user-icon">
+                <img src="images/user-profile-pic.png" alt="user-icon" class="user-icon" id="user-icon">
             </div>
             
         </div>
     </nav>
-    
 </body>
 </html>
 
 <!-- Script for Service Worker -->
 <script src="js/register-sw.js"></script>
+<script src="js/header.js"></script>
+
+<!-- Script for profile picture. pic is provided by server -->
+<script>
+    const userIcon = document.getElementById("user-icon");
+    const picLink = "<%= pic %>";
+    document.addEventListener('DOMContentLoaded', (e) => {
+    userIcon.setAttribute('src', picLink);
+});
+</script>

@@ -25,12 +25,13 @@ router.get("/app", isLoggedIn, async (req, res) => {
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
     const chatHistory = await getChatHistory(currentUserEmail);
+    const pic = await getProfilePic(currentUserId);
     if(chatHistory.length == 0) {
         await sendWelcomeMsg(currentUserEmail, currentUserId);
         const chatHistory = await getChatHistory(currentUserEmail);
-        res.render("index.ejs", {chatHistory: chatHistory, currentUserId: currentUserId});
+        res.render("index.ejs", {chatHistory: chatHistory, currentUserId: currentUserId, pic: pic});
     } else {
-        res.render("index.ejs", {chatHistory: chatHistory, currentUserId: currentUserId});
+        res.render("index.ejs", {chatHistory: chatHistory, currentUserId: currentUserId, pic: pic});
     }
     
     // startAi(currentUserEmail);
@@ -41,8 +42,9 @@ router.get("/todo-list", isLoggedIn, async (req, res) => {
     // const currentUser = await getCurrentUser();
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
+    const pic = await getProfilePic(currentUserId);
     const todoList = await getTodoList(currentUserId);
-    res.render("todo-list.ejs", {todoList: todoList, currentUserId: currentUserId});
+    res.render("todo-list.ejs", {todoList: todoList, currentUserId: currentUserId, pic: pic});
 });
 
 router.post("/send", isLoggedIn, async (req, res) => {
@@ -132,6 +134,16 @@ async function pushChatToDb(currentUserId, message, sent_by) {
     } catch(err) {
         console.error("Error pushing msg to db", err);
     }
+}
+
+//Get profile pic from DB
+async function getProfilePic(currentUserId) {
+    try {
+        const response = await db.query(`SELECT photo_link FROM users WHERE id=$1`, [currentUserId]);
+        return response.rows[0].photo_link;
+    } catch(err) {
+        console.error("Error fetching pic from db", err);
+    } 
 }
 
 //Sending welcome message for new user
