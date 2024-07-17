@@ -75,18 +75,20 @@ import db from "../routes/db.js";
 import { io } from "../index.js";
 import axios from "axios";
 import dotenv from "dotenv";
+import moment from "moment-timezone";
 
 dotenv.config();
 const router = express.Router();
 
 class Scheduler {
-    constructor(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail) {
+    constructor(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail, clientTimezone) {
         this.taskName = taskName;
         this.scheduledTime = scheduledTime;
-        this.currentDateString = currentDateString;
+        this.currentDateString = currentDateString; //Retreived from Client side
         this.duration = duration;
         this.currentUserId = currentUserId;
         this.currentUserEmail = currentUserEmail;
+        this.clientTimezone = clientTimezone;
     }
 
     setRemindTime() {
@@ -99,12 +101,16 @@ class Scheduler {
 
         const cronExpression = `${minutesInt} ${hoursInt} ${currentDate.getDate()} ${currentDate.getMonth() + 1} *`;
         
+        // // Extract timezone from currentDate
+        // const timezoneOffset = -currentDate.getTimezoneOffset(); // in minutes
+        // const timezone = moment.tz.guess(); // Get the timezone name
+
         cron.schedule(cronExpression, () => {
             console.log(`Scheduler Worked`);
             this.triggerAi(this.taskName);
         }, {
             scheduled: true,
-            // timezone: "GMT+0530" // Adjust timezone as needed
+            timezone: this.clientTimezone // Adjust timezone as needed
         });
     }
 
@@ -139,8 +145,8 @@ class Scheduler {
     }
 }
 
-function taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail) {
-    const task = new Scheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail);
+function taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail, clientTimezone) {
+    const task = new Scheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail, clientTimezone);
     task.setRemindTime();
 }
 

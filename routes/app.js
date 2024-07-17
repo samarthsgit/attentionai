@@ -71,10 +71,14 @@ router.post("/addTask", isLoggedIn, async (req, res) => {
     const scheduledTime = req.body.scheduledTime;
     const currentDateString = req.body.currentDate;
     const duration = req.body.duration;
+    const clientTimezone = req.body.clientTimezone;
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
+
+    console.log(clientTimezone);
+
     //Sending data to task-scheduler.js
-    taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail);
+    taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail, clientTimezone);
     console.log(taskName, scheduledTime, duration);
     try {
         const response = await db.query("INSERT INTO tasks (user_id, task_name, scheduled_time, duration) VALUES ($1, $2, $3, $4) RETURNING id", 

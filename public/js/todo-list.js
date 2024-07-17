@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', event => {
         const currentDate = currentDateElement.value;
         const duration = durationElement.value;
         let taskId = null;
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone // Client's timezone
 
         
 
@@ -31,7 +32,8 @@ document.addEventListener('DOMContentLoaded', event => {
             taskName: task,
             scheduledTime: scheduledTime,
             currentDate: currentDate,
-            duration: duration
+            duration: duration,
+            clientTimezone: timezone
         })
         .then(response => {
             // Update the messages container with the new message
