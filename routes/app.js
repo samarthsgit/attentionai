@@ -47,6 +47,12 @@ router.get("/todo-list", isLoggedIn, async (req, res) => {
     res.render("todo-list.ejs", {todoList: todoList, currentUserId: currentUserId, pic: pic});
 });
 
+router.get("/user-id", async (req, res) => {
+    const currentUserEmail = req.user.emails[0].value;
+    const currentUserId = await getCurrentUserId(currentUserEmail);
+    res.json({userId: currentUserId});
+})
+
 router.post("/send", isLoggedIn, async (req, res) => {
     // const userInput = req.body.userInput.trim();
     const userInput = req.body.userInput.trim();
@@ -76,6 +82,8 @@ router.post("/addTask", isLoggedIn, async (req, res) => {
     const currentUserId = await getCurrentUserId(currentUserEmail);
 
     console.log(clientTimezone);
+    console.log(scheduledTime);
+    console.log(typeof scheduledTime);
 
     //Sending data to task-scheduler.js
     taskScheduler(taskName, scheduledTime, currentDateString, duration, currentUserId, currentUserEmail, clientTimezone);

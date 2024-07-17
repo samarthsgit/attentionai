@@ -47,5 +47,23 @@
             window.location.href = data.url;
         }
     });
+
+    //Listen for aiCustomFunctionRun request from the server using socket
+    socket.on('addDateAndPostToServer', (data) => {
+        if (data.userId == userId) {
+            const [taskName, scheduledTime, duration] = [data.taskName, data.scheduledTime, data.duration];
+            const currentDateString = new Date().toString();
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone // Client's timezone
+
+            //Send this data to addTask
+            axios.post('/addTask', {
+            taskName: taskName,
+            scheduledTime: scheduledTime,
+            currentDate: currentDateString,
+            duration: duration,
+            clientTimezone: timezone
+            });
+        }
+    })
 </script>
 
