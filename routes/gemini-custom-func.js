@@ -12,8 +12,8 @@ const router = express.Router();
 const aiAddTaskFuncDeclaration = {
     name: "aiAddTask",
     parameters: {
-        tpye: "OBJECT",
-        description: "Add tasks in user's Tasks List",
+        type: "OBJECT",
+        description: "Add tasks in user's Tasks List.",
         properties: {
             taskName: {
                 type: "STRING",
@@ -32,9 +32,30 @@ const aiAddTaskFuncDeclaration = {
     }
 }
 
+//Testing
+const controlLightFunctionDeclaration = {
+    name: "controlLight",
+    parameters: {
+      type: "OBJECT",
+      description: "Set the brightness and color temperature of a room light.",
+      properties: {
+        brightness: {
+          type: "NUMBER",
+          description: "Light level from 0 to 100. Zero is off and 100 is full brightness.",
+        },
+        colorTemperature: {
+          type: "STRING",
+          description: "Color temperature of the light fixture which can be `daylight`, `cool` or `warm`.",
+        },
+      },
+      required: ["brightness", "colorTemperature"],
+    },
+};
+  
+
 // Executable function code. Put it in a map keyed by the function name
 // so that you can call it once you get the name string from the model.
-const functions = {
+const customFunctions = {
     aiAddTask: async ({taskName, scheduledTime, duration}) => {
         //Fetch userid from /user-id
         // try {
@@ -43,10 +64,15 @@ const functions = {
         // } catch(err) {
         //     console.error("Error fetching userId in custom", err)
         // }
+        console.log("Custom function aiAddTask ran!!"); //remove this
         const response = await axios.get("/user-id");
         const userId = response.data.userId;
         io.to("redirect-room").emit('addDateAndPostToServer', { taskName: taskName, scheduledTime: scheduledTime, duration: duration, userId: userId });
-    }
+    },
+    //Testing
+    controlLight: ({ brightness, colorTemp }) => {
+        return setLightValues( brightness, colorTemp)
+      }    
 }
 
 
@@ -54,4 +80,4 @@ const functions = {
 
 
 
-export default router;
+export {router, aiAddTaskFuncDeclaration, customFunctions, controlLightFunctionDeclaration};

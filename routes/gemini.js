@@ -1,6 +1,7 @@
 import express from "express";
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import db from "../routes/db.js";
+import { aiAddTaskFuncDeclaration, customFunctions, controlLightFunctionDeclaration } from "../routes/gemini-custom-func.js";
 
 const router = express.Router();
 
@@ -12,15 +13,22 @@ function isLoggedIn(req, res, next) {
     }
 }
 
+// let instructionsToAi = `
+// Hii! This is the message from the admin to you. I am using you for my app AttentionAI. It is designed for people with ADHD to keep them accountable and provide emotional support.
+// Although it is focused for ADHD, but other people may also use this.
+// Role you need to play: You're an experienced Accountability and Productivity coach.
+// This app also has a 'Tasks' section where people can put their tasks and details like scheduled time and duration.
+// I have coded this app in a way that whenever there will be 30 minutes left for the scheduled task you'll get prompted to remind user for the task.
+// So encourage users to put their tasks in todo list wherver you feel they can.
+// Don't respond to users in big paragraphs. User should feel as if they are talking to an actual person. Keep your response limited and rather encourage a to and fro communication.
+// `;
+
 let instructionsToAi = `
-Hii! This is the message from the admin to you. I am using you for my app AttentionAI. It is designed for people with ADHD to keep them accountable and provide emotional support.
-Although it is focused for ADHD, but other people may also use this.
-Role you need to play: You're an experienced Accountability and Productivity coach.
-This app also has a 'Tasks' section where people can put their tasks and details like scheduled time and duration.
-I have coded this app in a way that whenever there will be 30 minutes left for the scheduled task you'll get prompted to remind user for the task.
-So encourage users to put their tasks in todo list wherver you feel they can.
-Don't respond to users in big paragraphs. User should feel as if they are talking to an actual person. Keep your response limited and rather encourage a to and fro communication.
+Hii! This is the message from the admin to you. This app is a ToDo list app where users need not to
+put their tasks manually rather they can just tell you and you'll add the tasks in their tasks list.
+Also you have the capabality to control the room lights of user.
 `;
+
 let instructionsToAiArr = [
     {
         role: "user",
@@ -40,13 +48,26 @@ class AiService {
     }
 
     async initializeChat(currentUserEmail) {
+        console.log(this.chats); //remove this
         if (!this.chats.has(currentUserEmail)) {
+            console.log("Initialize chat block hit!!!"); //Remove this
             const model = this.genAI.getGenerativeModel({ 
-                model: "gemini-1.5-flash",
+                model: "gemini-1.5-flash-latest",
+
+                // Specify the function declaration.
+                tools: {
+                    functionDeclarations: [aiAddTaskFuncDeclaration, controlLightFunctionDeclaration],
+                },
+                // toolConfig: {
+                //     functionCallingConfig: {
+                //         mode: "ANY",
+                //         allowedFunctionNames: ["aiAddTask", "controlLight"]
+                //     }
+                // },
                 safetySettings: [
                     {
                         category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                        threshold: HarmBlockThreshold.BLOCK_NONE,
                     }
                 ]
             });
@@ -78,8 +99,41 @@ class AiService {
         
         try {
             const result = await chat.sendMessage(prompt);
-            const response = await result.response;
-            return response.text();
+
+            // console.log(result.response.functionCalls()[0]); //remove this
+            const functionCalls = result.response.functionCalls();
+            if (functionCalls && functionCalls.length > 0) {
+                const call = functionCalls[0];
+                console.log(call);
+            }
+            // console.log(call); //remove this
+            //Check for custom functions
+            // const call = result.response.functionCalls;
+
+            // console.log(typeof call)
+            // console.log(typeof call()) //Remove this
+            //If function called
+            const call = null;
+            if(call) {
+                // Call the executable function named in the function call
+                // with the arguments specified in the function call and
+                const customFuncResponse = await customFunctions[call.name](call.args);
+                //Send this response back to model
+                const newResponse = await chat.sendMessage([{functionResponse: {
+                    name: 'aiAddTask',
+                    response: customFuncResponse
+                }}]);
+                //Logging text response
+                console.log(`Custom function is called: ${newResponse.text()}`);
+                return newResponse.text();
+            } else {
+                const response = await result.response;
+                console.log(`From else: ${response.text()}`);
+                return response.text();
+            }
+
+            // const response = await result.response;
+            // return response.text();
         } catch (error) {
             console.error("Error in AI response:", error);
             throw error;
