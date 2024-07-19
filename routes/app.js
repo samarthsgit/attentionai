@@ -52,7 +52,7 @@ router.get("/user-id", async (req, res) => {
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
     res.json({userId: currentUserId});
-})
+});
 
 router.post("/send", isLoggedIn, async (req, res) => {
     // const userInput = req.body.userInput.trim();
@@ -63,7 +63,7 @@ router.post("/send", isLoggedIn, async (req, res) => {
     console.log(currentUserId);
     await pushChatToDb(currentUserId, userInput, "user");
     try {
-        const aiOutput = await aiService.run(currentUserEmail, userInput);
+        const aiOutput = await aiService.run(currentUserId, currentUserEmail, userInput);
         await pushChatToDb(currentUserId, aiOutput, "ai");
         // res.redirect("/app");
         res.json({ response: aiOutput });
@@ -172,7 +172,7 @@ async function sendWelcomeMsg(currentUserEmail, currentUserId) {
     // Tell these points in your own language. You can also add some more points to use this app in best way.
     // From here on, you'll be talking to the user. All the best! Start with a welcome now`;
     const prompt = `New user has signed in send them a welcome message.`
-    const aiOutput = await aiService.run(currentUserEmail, prompt);
+    const aiOutput = await aiService.run(currentUserId, currentUserEmail, prompt);
     await pushChatToDb(currentUserId, aiOutput, "ai"); 
 }
 

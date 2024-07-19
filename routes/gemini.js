@@ -26,6 +26,9 @@ function isLoggedIn(req, res, next) {
 let instructionsToAi = `
 Hii! This is the message from the admin to you. This app is a ToDo list app where users need not to
 put their tasks manually rather they can just tell you and you'll add the tasks in their tasks list.
+I have coded a special function for you, it's defined in your tools. Whenever there is need to add a task, you'll need to trigger this function.
+Remember - only by hitting this function can you add a task.
+Wherever you feel, encourage the user to add tasks to their list and collect the necessary details to add the tasks.
 Also you have the capabality to control the room lights of user.
 `;
 
@@ -36,7 +39,7 @@ let instructionsToAiArr = [
     },
     {
         role: "model",
-        parts: [{ text: "Got it! From now onwards I am an ADHD Accountability Coach" }],
+        parts: [{ text: "Got it! From now onwards I am an ADHD Accountability Coach. I have capabilities of adding tasks to user's task lists by triggering the custom function that's built in me" }],
     },
     ];
 
@@ -48,7 +51,7 @@ class AiService {
     }
 
     async initializeChat(currentUserEmail) {
-        console.log(this.chats); //remove this
+        // console.log(this.chats); //remove this
         if (!this.chats.has(currentUserEmail)) {
             console.log("Initialize chat block hit!!!"); //Remove this
             const model = this.genAI.getGenerativeModel({ 
@@ -93,7 +96,7 @@ class AiService {
         }));
     }
 
-    async run(currentUserEmail, prompt) {
+    async run(currentUserId, currentUserEmail, prompt) {
         await this.initializeChat(currentUserEmail);
         const chat = this.chats.get(currentUserEmail);
         
@@ -105,35 +108,33 @@ class AiService {
             if (functionCalls && functionCalls.length > 0) {
                 const call = functionCalls[0];
                 console.log(call);
-            }
-            // console.log(call); //remove this
-            //Check for custom functions
-            // const call = result.response.functionCalls;
 
-            // console.log(typeof call)
-            // console.log(typeof call()) //Remove this
-            //If function called
-            const call = null;
-            if(call) {
-                // Call the executable function named in the function call
-                // with the arguments specified in the function call and
-                const customFuncResponse = await customFunctions[call.name](call.args);
-                //Send this response back to model
-                const newResponse = await chat.sendMessage([{functionResponse: {
-                    name: 'aiAddTask',
-                    response: customFuncResponse
-                }}]);
-                //Logging text response
-                console.log(`Custom function is called: ${newResponse.text()}`);
-                return newResponse.text();
+                //testing
+                if(call.name == 'aiAddTask') {
+                    // Call the executable function named in the function call
+                    // with the arguments specified in the function call and
+                    call.args.userId = currentUserId; //make it dynamic
+                    console.log(call.args);
+                    const customFuncResponse = await customFunctions[call.name](call.args);
+                    console.log("Custom func execution complete");
+                    console.log(customFuncResponse); //remove
+                    //Send this response back to model
+                    // const newResponse = await chat.sendMessage([{functionResponse: {
+                    //     name: 'aiAddTask',
+                    //     response: customFuncResponse
+                    // }}]);
+                    // console.log(newResponse);
+                    
+                    //Logging text response
+                    // console.log(`Custom function is called: ${newResponse.text()}`);
+                    return "Successfully added task!";
+                }
             } else {
                 const response = await result.response;
                 console.log(`From else: ${response.text()}`);
                 return response.text();
             }
 
-            // const response = await result.response;
-            // return response.text();
         } catch (error) {
             console.error("Error in AI response:", error);
             throw error;

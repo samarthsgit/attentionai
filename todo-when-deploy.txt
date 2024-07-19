@@ -1,1 +1,3 @@
 In header.js - change brandDiv url to new domain name
+
+2. In chat.js change get session route to new domain

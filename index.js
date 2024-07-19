@@ -5,11 +5,13 @@ import db from "./routes/db.js";
 import authRouter from "./routes/auth.js";
 import session from "express-session";
 import passport from "passport";
-// import { router as geminiRouter, runAi } from "./routes/gemini.js";
+import { router as geminiRouter} from "./routes/gemini.js";
 import appRouter from "./routes/app.js";
 import { Server } from 'socket.io';
 import swRouter from "./routes/handle-sw.js";
 import cors from "cors";
+import { router as geminiCustomRouter } from "./routes/gemini-custom-func.js";
+import { router as sessionRouter } from "./routes/session-handler.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,14 +25,18 @@ dotenv.config();
 app.use(session({
     secret: 'keyboard cat',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
   }));
 
 app.use(passport.authenticate('session'));
 
+app.use("/", sessionRouter);
 app.use("/", authRouter);
 app.use("/", appRouter);
 app.use("/", swRouter);
+app.use("/", geminiRouter);
+app.use("/", geminiCustomRouter);
 
 const server = app.listen(PORT, () => {
     console.log(`Listening at Port ${PORT}`);

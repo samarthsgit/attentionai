@@ -45,7 +45,7 @@ class Scheduler {
         console.log(`Ai triggered!!! ${taskName}`);
         const adminMsg = `Message from admin: User has entered a task in their todo list and it is scheduled from 30 minutes from now. Send them a gentle reminder. Task name is : ${taskName}`;
         try {
-            const aiOutput = await aiService.run(this.currentUserEmail, adminMsg);
+            const aiOutput = await aiService.run(this.currentUserId, this.currentUserEmail, adminMsg);
             await this.pushChatToDb(this.currentUserId, aiOutput, "ai");
             io.to("redirect-room").emit('redirect', { url: '/app', userId: this.currentUserId });
             console.log(`Emitted redirect event to user ${this.currentUserId}`);

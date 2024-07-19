@@ -56,18 +56,27 @@ const controlLightFunctionDeclaration = {
 // Executable function code. Put it in a map keyed by the function name
 // so that you can call it once you get the name string from the model.
 const customFunctions = {
-    aiAddTask: async ({taskName, scheduledTime, duration}) => {
-        //Fetch userid from /user-id
-        // try {
-        //     const response = await axios.get("/user-id");
-        //     const userId = response.data.userId;
-        // } catch(err) {
-        //     console.error("Error fetching userId in custom", err)
-        // }
+    aiAddTask: async ({taskName, scheduledTime, duration, userId}) => {
         console.log("Custom function aiAddTask ran!!"); //remove this
-        const response = await axios.get("/user-id");
-        const userId = response.data.userId;
-        io.to("redirect-room").emit('addDateAndPostToServer', { taskName: taskName, scheduledTime: scheduledTime, duration: duration, userId: userId });
+        console.log(`Data provided to custom function ${taskName} ${scheduledTime} ${duration} ${userId}`); //remove this
+        //Try-catch for getting user-id
+        try {
+          const response = await axios.get(`${process.env.DOMAIN_NAME}/get-session`);
+          // console.log(response.data);
+          const userId = response.data.userId;
+          // console.log(`User id retrieved in custom f ${userId}`); //remove this
+        } catch(err) {
+          console.error("Error getting user id in custom f", err);
+        }
+        //try-catch for web scoket
+        try {
+          io.to("redirect-room").emit('addDateAndPostToServer', { taskName: taskName, scheduledTime: scheduledTime, duration: duration, userId: userId });
+          // return { taskName: taskName, scheduledTime: scheduledTime, duration: duration }
+          return {outcome: "Success!"}
+        } catch(err) {
+          console.error("Error sending data to client side", err);
+        }
+        
     },
     //Testing
     controlLight: ({ brightness, colorTemp }) => {

@@ -37,3 +37,10 @@ function createNewMessageDiv(messagesContainer, message, sentBy) {
     //Make sure the chat sceen moves as new chat gets add
     messagesContainer.scrollTop = chatMessages.scrollHeight;
 }
+
+//Set session
+async function setSession() {
+    const response = await axios.get('http://localhost:3000/set-session'); //TODO - change on deploy
+    console.log(response.data);
+}
+setSession();
