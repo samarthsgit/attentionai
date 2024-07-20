@@ -33,13 +33,9 @@ router.get("/app", isLoggedIn, async (req, res) => {
     } else {
         res.render("index.ejs", {chatHistory: chatHistory, currentUserId: currentUserId, pic: pic});
     }
-    
-    // startAi(currentUserEmail);
-    // aiService.start(currentUserEmail);
 });
 
 router.get("/todo-list", isLoggedIn, async (req, res) => {
-    // const currentUser = await getCurrentUser();
     const currentUserEmail = req.user.emails[0].value;
     const currentUserId = await getCurrentUserId(currentUserEmail);
     const pic = await getProfilePic(currentUserId);
@@ -47,15 +43,7 @@ router.get("/todo-list", isLoggedIn, async (req, res) => {
     res.render("todo-list.ejs", {todoList: todoList, currentUserId: currentUserId, pic: pic});
 });
 
-router.get("/user-id", async (req, res) => {
-    console.log("/user-id route hit!"); //Remove This
-    const currentUserEmail = req.user.emails[0].value;
-    const currentUserId = await getCurrentUserId(currentUserEmail);
-    res.json({userId: currentUserId});
-});
-
 router.post("/send", isLoggedIn, async (req, res) => {
-    // const userInput = req.body.userInput.trim();
     const userInput = req.body.userInput.trim();
     console.log(userInput);
     const currentUserEmail = req.user.emails[0].value;
@@ -65,7 +53,6 @@ router.post("/send", isLoggedIn, async (req, res) => {
     try {
         const aiOutput = await aiService.run(currentUserId, currentUserEmail, userInput);
         await pushChatToDb(currentUserId, aiOutput, "ai");
-        // res.redirect("/app");
         res.json({ response: aiOutput });
     } catch(err) {
         console.error("Something went wrong", err);
@@ -94,7 +81,6 @@ router.post("/addTask", isLoggedIn, async (req, res) => {
             [currentUserId, taskName, scheduledTime, duration]);
         const taskId = response.rows[0].id;
         res.json({ response: taskId });
-        // res.redirect("/todo-list");
     } catch(err) {
         console.error("Error adding new task in DB", err);
     }
@@ -171,7 +157,6 @@ async function sendWelcomeMsg(currentUserEmail, currentUserId) {
     If this is not enabled, you won't be able to send them reminders.
     Tell these points in your own language. You can also add some more points to use this app in best way.
     From here on, you'll be talking to the user. All the best! Start with a welcome now`;
-    // const prompt = `New user has signed in send them a welcome message.`
     const aiOutput = await aiService.run(currentUserId, currentUserEmail, prompt);
     await pushChatToDb(currentUserId, aiOutput, "ai"); 
 }

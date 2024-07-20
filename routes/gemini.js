@@ -1,7 +1,7 @@
 import express from "express";
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import db from "../routes/db.js";
-import { aiAddTaskFuncDeclaration, customFunctions, controlLightFunctionDeclaration } from "../routes/gemini-custom-func.js";
+import { aiAddTaskFuncDeclaration, customFunctions } from "../routes/gemini-custom-func.js";
 
 const router = express.Router();
 
@@ -23,15 +23,6 @@ I have coded this app in a way that whenever there will be 30 minutes left for t
 So encourage users to put their tasks in todo list wherver you feel they can.
 Don't respond to users in big paragraphs. User should feel as if they are talking to an actual person. Keep your response limited and rather encourage a to and fro communication.
 `;
-
-// let instructionsToAi = `
-// Hii! This is the message from the admin to you. This app is a ToDo list app where users need not to
-// put their tasks manually rather they can just tell you and you'll add the tasks in their tasks list.
-// I have coded a special function for you, it's defined in your tools. Whenever there is need to add a task, you'll need to trigger this function.
-// Remember - only by hitting this function can you add a task.
-// Wherever you feel, encourage the user to add tasks to their list and collect the necessary details to add the tasks.
-// Also you have the capabality to control the room lights of user.
-// `;
 
 let instructionsToAiArr = [
     {
@@ -60,14 +51,8 @@ class AiService {
 
                 // Specify the function declaration.
                 tools: {
-                    functionDeclarations: [aiAddTaskFuncDeclaration, controlLightFunctionDeclaration],
+                    functionDeclarations: [aiAddTaskFuncDeclaration],
                 },
-                // toolConfig: {
-                //     functionCallingConfig: {
-                //         mode: "ANY",
-                //         allowedFunctionNames: ["aiAddTask", "controlLight"]
-                //     }
-                // },
                 safetySettings: [
                     {
                         category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
@@ -103,18 +88,16 @@ class AiService {
         
         try {
             const result = await chat.sendMessage(prompt);
-
-            // console.log(result.response.functionCalls()[0]); //remove this
+            
             const functionCalls = result.response.functionCalls();
             if (functionCalls && functionCalls.length > 0) {
                 const call = functionCalls[0];
                 console.log(call);
-
-                //testing
+                //check call name
                 if(call.name == 'aiAddTask') {
                     // Call the executable function named in the function call
                     // with the arguments specified in the function call and
-                    call.args.userId = currentUserId; //make it dynamic
+                    call.args.userId = currentUserId; //adding an extra arg
                     console.log(call.args);
                     const customFuncResponse = await customFunctions[call.name](call.args);
                     console.log("Custom func execution complete");

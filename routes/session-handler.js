@@ -1,3 +1,4 @@
+//Currently not in use by any route
 import express from "express";
 import db from "../routes/db.js";
 
@@ -12,16 +13,11 @@ router.get('/set-session', async (req, res) => {
 });
 
 router.get('/get-session', async (req, res) => {
-    // if (req.session.user) {
-    //     res.json(req.session.user);
-    // } else {
-    //     res.sendStatus(404);
-    // }
-    const userData = await req.session.user;
-    console.log(userData);
-    console.log(`User data in session handler ${userData}`);
-    res.json(userData);
-    // res.json({userId: 29});
+    if (req.session.user) {
+        res.json(req.session.user);
+    } else {
+        res.sendStatus(404);
+    }
 });
 
 //Database query for getting userId
