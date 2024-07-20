@@ -161,17 +161,17 @@ async function getProfilePic(currentUserId) {
 
 //Sending welcome message for new user
 async function sendWelcomeMsg(currentUserEmail, currentUserId) {
-    // const prompt = `Ok great! So a new user has signed in. Send them a Welcome Message 
-    // and a Thank You note from the developer of the app - Samarth, for choosing this app.
-    // After that convey some basics that they need to know to use this app in best way.
-    // 1. They can discuss their problems with you and seek support.
-    // 2. Your task is to keep them accountable, so tell them that they can put their tasks in 
-    // the 'Tasks' tab and you will keep them accountable.
-    // 3. Ask them to enable the notification by clicking the button at top.
-    // If this is not enabled, you won't be able to send them reminders.
-    // Tell these points in your own language. You can also add some more points to use this app in best way.
-    // From here on, you'll be talking to the user. All the best! Start with a welcome now`;
-    const prompt = `New user has signed in send them a welcome message.`
+    const prompt = `Ok great! So a new user has signed in. Send them a Welcome Message 
+    and a Thank You note from the developer of the app - Samarth, for choosing this app.
+    After that convey some basics that they need to know to use this app in best way.
+    1. They can discuss their problems with you and seek support.
+    2. Your task is to keep them accountable, so tell them that they can put their tasks in 
+    the 'Tasks' tab and you will keep them accountable. Alternatively, they can tell you tasks to put on list.
+    3. Ask them to enable the notification by clicking the button at top.
+    If this is not enabled, you won't be able to send them reminders.
+    Tell these points in your own language. You can also add some more points to use this app in best way.
+    From here on, you'll be talking to the user. All the best! Start with a welcome now`;
+    // const prompt = `New user has signed in send them a welcome message.`
     const aiOutput = await aiService.run(currentUserId, currentUserEmail, prompt);
     await pushChatToDb(currentUserId, aiOutput, "ai"); 
 }
