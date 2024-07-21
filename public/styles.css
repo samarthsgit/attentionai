@@ -541,3 +541,25 @@ h2 {
         position: relative;
     }
 }
+
+
+/* Padding for list elements */
+/* Ensure proper padding for list items */
+.message ul {
+    list-style-type: disc; /* or whatever marker type you prefer */
+    padding-left: 20px; /* Adjust the padding as needed */
+}
+
+/* Ensure proper padding for ordered list items */
+.message ol {
+    list-style-type: decimal; /* or whatever marker type you prefer */
+    padding-left: 20px; /* Adjust the padding as needed */
+}
+
+/* Ensure proper padding for nested list items */
+.message ul ul,
+.message ol ul,
+.message ul ol,
+.message ol ol {
+    padding-left: 20px; /* Adjust the padding as needed */
+}

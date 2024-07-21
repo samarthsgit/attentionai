@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', event => {
 function createNewMessageDiv(messagesContainer, message, sentBy) {
     const newMessageDiv = document.createElement('div');
     newMessageDiv.classList.add('message', `${sentBy}-message`);
-    newMessageDiv.textContent = message;
+    // newMessageDiv.textContent = message;
+    newMessageDiv.innerHTML = message;
     messagesContainer.appendChild(newMessageDiv);
     //Make sure the chat sceen moves as new chat gets add
     messagesContainer.scrollTop = chatMessages.scrollHeight;
