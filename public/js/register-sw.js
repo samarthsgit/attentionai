@@ -47,7 +47,7 @@ async function main() {
 
 
 //Check if already registered and hide the button
-if (Notification.permission == 'granted') {
-    const notificationBtn = document.getElementById('notification-btn');
-    notificationBtn.style.display = 'none';
-}
+// if (Notification.permission == 'granted') {
+//     const notificationBtn = document.getElementById('notification-btn');
+//     notificationBtn.style.display = 'none';
+// }

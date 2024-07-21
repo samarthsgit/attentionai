@@ -133,6 +133,7 @@ body {
     padding: 10px 15px;
     border-radius: 20px;
     max-width: 80%;
+    /* white-space: pre-line; */
 }
 
 .user-message {

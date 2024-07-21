@@ -2,8 +2,10 @@ import express from "express";
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import db from "../routes/db.js";
 import { aiAddTaskFuncDeclaration, customFunctions } from "../routes/gemini-custom-func.js";
+import markdown from 'markdown-it';
 
 const router = express.Router();
+const md = markdown();
 
 function isLoggedIn(req, res, next) {
     if(req.user) {
@@ -116,7 +118,8 @@ class AiService {
             } else {
                 const response = await result.response;
                 console.log(`From else: ${response.text()}`);
-                return response.text();
+                const formattedOutput = md.render(response.text());
+                return formattedOutput.trim();
             }
 
         } catch (error) {
