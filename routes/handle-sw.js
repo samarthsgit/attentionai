@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import db from "../routes/db.js";
 import webPush from "web-push";
+import { htmlToText } from "html-to-text";
 
 dotenv.config();
 const router = express.Router();
@@ -32,7 +33,7 @@ router.post("/save-subscription", async (req, res) => {
 
 router.post("/send-notification", async (req, res) => {
     const userId = req.body.userId;
-    const aiMessage = req.body.aiMessage;
+    const aiMessage = htmlToText(req.body.aiMessage);
     const subscription = await getSubscription(userId);
 
     console.log(`User id recieve in send-not ${userId}`)

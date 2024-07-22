@@ -3,9 +3,17 @@ import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/ge
 import db from "../routes/db.js";
 import { aiAddTaskFuncDeclaration, customFunctions } from "../routes/gemini-custom-func.js";
 import markdown from 'markdown-it';
+import { marked } from 'marked';
 
 const router = express.Router();
-const md = markdown();
+// const md = markdown();
+const md = markdown({
+    html: true,
+    linkify: true,
+    // typographer: true
+  });
+  
+
 
 function isLoggedIn(req, res, next) {
     if(req.user) {
@@ -119,7 +127,8 @@ class AiService {
                 const response = await result.response;
                 console.log(`From else: ${response.text()}`);
                 const formattedOutput = md.render(response.text());
-                return formattedOutput.trim();
+                // const formattedOutput = marked.parse(response.text());
+                return formattedOutput;
             }
 
         } catch (error) {
