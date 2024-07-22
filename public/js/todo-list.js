@@ -120,7 +120,7 @@ function createNewTaskDiv(taskId, taskListElement, listContainer, taskName, sche
     // Create task time span
     const taskTimeSpan = document.createElement('span');
     taskTimeSpan.className = 'task-time';
-    taskTimeSpan.textContent = scheduledTime;
+    taskTimeSpan.textContent = convertTo12Hour(scheduledTime);
 
     // Create task duration span
     const taskDurationSpan = document.createElement('span');
@@ -156,5 +156,13 @@ function createNewTaskDiv(taskId, taskListElement, listContainer, taskName, sche
     listContainer.scrollTop = listContainer.scrollHeight;
 }
 
+//Convert time to 12 hr format
+function convertTo12Hour(time) {
+    const [hour, min, sec] = time.split(':');
+    let hour12 = hour % 12 || 12;
+    let period = hour >= 12 ? 'PM' : 'AM';
+    newTime = `${hour12}:${min} ${period}`;
+    return newTime;
+}
 
 
