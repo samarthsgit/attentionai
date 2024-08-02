@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', event => {
     const goalInputElement = document.getElementById('goal-input');
     const taskListElement = document.getElementById('task-list');
     const scheduledTimeElement = document.getElementById('scheduled-time');
+    //Tesing
+    const scheduledDateElement = document.getElementById('scheduled-date');
+    //Testing
     const currentDateElement = document.getElementById('currentDate');
     const durationElement = document.getElementById('duration');
     const listContainer = document.getElementById('list-container');
@@ -15,6 +18,9 @@ document.addEventListener('DOMContentLoaded', event => {
         event.preventDefault(); // Prevent the form from submitting the traditional way
         const task = goalInputElement.value;
         const scheduledTime = scheduledTimeElement.value;
+        //Testing
+        const scheduledDate = scheduledDateElement.value;
+        //Testing
         const currentDate = currentDateElement.value;
         const duration = durationElement.value;
         let taskId = null;
@@ -25,12 +31,16 @@ document.addEventListener('DOMContentLoaded', event => {
         // Clear the input field
         goalInputElement.value = '';
         scheduledTimeElement.value = null;
+        scheduledDateElement.value = null;
         durationElement.value = null;
 
         // Send the message to the server using axios. Make sure to add axios cdn
         axios.post('/addTask', {
             taskName: task,
             scheduledTime: scheduledTime,
+            //Testing
+            scheduledDate: scheduledDate,
+            //Testing
             currentDate: currentDate,
             duration: duration,
             clientTimezone: timezone
@@ -39,7 +49,7 @@ document.addEventListener('DOMContentLoaded', event => {
             // Update the messages container with the new message
             taskId = response.data.response;
             console.log(`New task id is ${taskId}`);
-            createNewTaskDiv(taskId, taskListElement, listContainer, task, scheduledTime, duration);
+            createNewTaskDiv(taskId, taskListElement, listContainer, task, scheduledTime, scheduledDate, duration);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -89,7 +99,7 @@ function deleteTask(id) {
 }
 
 //Create new div
-function createNewTaskDiv(taskId, taskListElement, listContainer, taskName, scheduledTime, duration) {
+function createNewTaskDiv(taskId, taskListElement, listContainer, taskName, scheduledTime, scheduledDate, duration) {
     // Create the main task div
     const taskDiv = document.createElement('div');
     taskDiv.className = 'task';
@@ -122,13 +132,22 @@ function createNewTaskDiv(taskId, taskListElement, listContainer, taskName, sche
     taskTimeSpan.className = 'task-time';
     taskTimeSpan.textContent = convertTo12Hour(scheduledTime);
 
+    //Testing
+    // Create task time span
+    const taskDateSpan = document.createElement('span');
+    taskDateSpan.className = 'task-time';
+    taskDateSpan.textContent = scheduledDate;
+    //Testing
+
     // Create task duration span
     const taskDurationSpan = document.createElement('span');
     taskDurationSpan.className = 'task-duration';
     taskDurationSpan.textContent = `${duration} min`;
 
-    // Append time and duration to task details
+    // Append time, date and duration to task details
     taskDetailsSpan.appendChild(taskTimeSpan);
+    //Testing
+    taskDetailsSpan.appendChild(taskDateSpan);
     taskDetailsSpan.appendChild(taskDurationSpan);
 
     // Append task name and details to label

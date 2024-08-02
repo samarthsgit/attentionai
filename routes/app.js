@@ -63,7 +63,15 @@ router.post("/send", isLoggedIn, async (req, res) => {
 router.post("/addTask", isLoggedIn, async (req, res) => {
     const taskName = req.body.taskName;
     const scheduledTime = req.body.scheduledTime;
-    const currentDateString = req.body.currentDate;
+    let currentDateString = req.body.currentDate;
+    //Testing
+    let scheduledDate = req.body.scheduledDate;
+    console.log(scheduledDate);
+    console.log(typeof scheduledDate);
+    scheduledDate = new Date(scheduledDate);
+    currentDateString = scheduledDate.toString();
+    console.log(currentDateString);
+    //Testing
     const duration = req.body.duration;
     const clientTimezone = req.body.clientTimezone;
     const currentUserEmail = req.user.emails[0].value;
