@@ -382,7 +382,7 @@ h2 {
 .time-input-div {
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 30%;
 }
 
 .time-input-div input {
@@ -392,11 +392,25 @@ h2 {
     border: none;
 }
 
+.date-input-div {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+}
+
+.date-input-div input {
+    height: 30px;
+    /* font-size: 18px;
+    text-align: center; */
+    border: none;
+    padding: 2px;
+}
+
 
 .duration-input-div {
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 30%;
 }
 
 .duration-input-div input {
